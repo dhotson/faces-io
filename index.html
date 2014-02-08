@@ -1,0 +1,199 @@
+<html>
+  <body id="cover">
+
+    <div id="items"></div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="webrtc.io.js"></script>
+    <script src="d3/d3.min.js"></script>
+    <script>
+
+      var root = {
+        children: [
+        ]
+      };
+
+      var newItem = function(id, size, stream) {
+        var video = document.createElement('video');
+        video.autoplay = true;
+        video.className = 'video';
+
+        var el = document.createElement('div');
+        el.id = id;
+        el.className = 'item';
+
+        el.appendChild(video);
+        document.getElementById('items').appendChild(el);
+
+        /* TODO audio stuff
+        if (stream && window.webkitAudioContext) {
+          var context = new webkitAudioContext();
+          var analyser = context.createAnalyser();
+          // analyser.smoothingTimeConstant = 0.85;
+
+          var source = context.createMediaStreamSource(stream);
+          source.connect(analyser);
+
+          var getVolume = function() {
+            var data = new Float32Array(1);
+            var data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
+            console.log(data);
+            var p = (data[0] - analyser.minDecibels) / (analyser.maxDecibels - analyser.minDecibels);
+            return p;
+          };
+        }
+        */
+
+        root.children.push({
+          name: id,
+          el: el,
+          video: video,
+          // getVolume: getVolume,
+          size: size
+        });
+
+
+        return { el: el, video: video };
+      };
+
+      /* TODO
+      // Make videos flicker in size based on volume
+      setInterval(function showVolume() {
+        root.children.forEach(function(c) {
+          if (c.getVolume) {
+            c.video.style['-webkit-transform'] = 'scale('+(1+(c.getVolume()/25))+')';
+          }
+        });
+        // webkitRequestAnimationFrame(showVolume);
+      }, 500);
+      */
+
+      var map = {};
+
+      var treemap;
+      var layout;
+
+      var adjust = function() {
+        treemap = d3.layout.treemap()
+          .ratio(1)
+          .size([window.innerWidth-10, window.innerHeight-10])
+          .value(function(d) { return d.size || 1; })
+          ;
+        layout = treemap(root);
+
+        root.children || (root.children = []);
+        root.children.forEach(function(c) {
+          var o = map[c.el.id] || (map[c.el.id] = {});
+
+          c.el.style.left = c.x + 10;
+          c.el.style.top = c.y + 10;
+          c.el.style.width = c.dx - 10;
+          c.el.style.height = c.dy - 10;
+        });
+      };
+
+      $(window).resize(adjust);
+
+      rtc.on('new_peer_connected', function(data) {
+      });
+
+      // note: make sure hostname available to all connecting clients
+      // (ie. probably not `localhost`)
+      rtc.connect('ws://safe-dusk-9203.herokuapp.com', 'myroom');
+
+      rtc.createStream({"video": true, "audio": true}, function(stream){
+        // get local stream for manipulation
+        var item = newItem('local', 1, false);
+
+        console.log(window.stream = stream);
+
+        rtc.attachStream(stream, item.video);
+
+        // Local audio is muted
+        item.video.muted = true;
+        adjust();
+      });
+
+      rtc.on('add remote stream', function(stream, id){
+        console.log(window.rstream = stream);
+        // show the remote video
+        var item = newItem(id, 1, stream);
+        rtc.attachStream(stream, item.video);
+
+        /* TODO
+        $(item.video).click(function() {
+          item.video.muted ^= true;
+        });
+        */
+
+        adjust();
+      });
+
+      rtc.on('disconnect stream', function(id) {
+        $('#' + id).remove();
+        root.children = $.grep(root.children, function(e) {
+          return e.name != id;
+        });
+        adjust()
+      });
+
+      // more rtc callbacks are available
+    </script>
+
+    <style>
+      body {
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e0e0e0)); /* Chrome, Safari 4+ */
+        background-image: -webkit-linear-gradient(top, #fafafa, #e0e0e0); /* Chrome 10-25, iOS 5+, Safari 5.1+ */
+        background-image:    -moz-linear-gradient(top, #fafafa, #e0e0e0); /* Firefox 3.6-15 */
+        background-image:      -o-linear-gradient(top, #fafafa, #e0e0e0); /* Opera 11.10-12.00 */
+        background-image:         linear-gradient(to bottom, #fafafa, #e0e0e0); /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
+      }
+
+      #items {
+      }
+
+      .item {
+        /* flexbox, por favor */
+        display: -webkit-box;
+        -webkit-box-orient: horizontal;
+        -webkit-box-pack: center;
+        -webkit-box-align: center;
+
+        display: -moz-box;
+        -moz-box-orient: horizontal;
+        -moz-box-pack: center;
+        -moz-box-align: center;
+
+        display: box;
+        box-orient: horizontal;
+        box-pack: center;
+        box-align: center;
+
+
+        position: absolute;
+        // background: rgba(0,0,0,0.5);
+        transition: all 0.1s;
+        left: 0;
+        top: 0;
+        width: 100px;
+        height: 60px;
+        // border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      .video {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 5px;
+      }
+
+      :target .video {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
