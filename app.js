@@ -1,2 +1,2 @@
-var webRTC = require('webrtc.io').listen(process.env.PORT || 8001);
+var webRTC = require('webrtc.io').listen(parseInt(process.env.PORT, 10) || 8001);
 
