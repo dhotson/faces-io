@@ -1,5 +1,11 @@
 <html>
   <head>
+    <!--
+    By Dennis Hotson
+    dennis.hotson@gmail.com / @dennishotson
+
+    This is the hackiest code I've ever written. Most of it is copy pasted from elsewhere. ;-)
+    -->
     <title>faces.io &mdash; dead simple video chat</title>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -11,6 +17,7 @@
       ga('send', 'pageview');
 
     </script>
+    <link rel="icon" type="image/png" href="favicon.ico" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="webrtc.io.js"></script>
     <script src="d3/d3.min.js"></script>
@@ -19,11 +26,7 @@
         height: 100%;
         padding: 0;
         margin: 0;
-        background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e0e0e0)); /* Chrome, Safari 4+ */
-        background-image: -webkit-linear-gradient(top, #fafafa, #e0e0e0); /* Chrome 10-25, iOS 5+, Safari 5.1+ */
-        background-image:    -moz-linear-gradient(top, #fafafa, #e0e0e0); /* Firefox 3.6-15 */
-        background-image:      -o-linear-gradient(top, #fafafa, #e0e0e0); /* Opera 11.10-12.00 */
-        background-image:         linear-gradient(to bottom, #fafafa, #e0e0e0); /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
+        background: white;
       }
 
       #items {
@@ -44,7 +47,6 @@
         box-orient: horizontal;
         box-pack: center;
         box-align: center;
-
 
         position: absolute;
         left: 0;
@@ -116,7 +118,6 @@
           size: size
         });
 
-
         return { el: el, video: video };
       };
 
@@ -158,9 +159,6 @@
 
       $(window).resize(adjust);
 
-      rtc.on('new_peer_connected', function(data) {
-      });
-
       // note: make sure hostname available to all connecting clients
       // (ie. probably not `localhost`)
       rtc.connect('ws://safe-dusk-9203.herokuapp.com', 'myroom');
@@ -169,17 +167,15 @@
         // get local stream for manipulation
         var item = newItem('local', 1, false);
 
-        console.log(window.stream = stream);
-
         rtc.attachStream(stream, item.video);
 
         // Local audio is muted
         item.video.muted = true;
+
         adjust();
       });
 
       rtc.on('add remote stream', function(stream, id){
-        console.log(window.rstream = stream);
         // show the remote video
         var item = newItem(id, 1, stream);
         rtc.attachStream(stream, item.video);
