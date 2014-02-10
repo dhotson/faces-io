@@ -161,7 +161,7 @@
 
       // note: make sure hostname available to all connecting clients
       // (ie. probably not `localhost`)
-      rtc.connect('ws://safe-dusk-9203.herokuapp.com', 'myroom');
+      rtc.connect('ws://safe-dusk-9203.herokuapp.com', window.location.hash);
 
       rtc.createStream({"video": true, "audio": true}, function(stream){
         // get local stream for manipulation
