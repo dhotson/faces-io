@@ -79,15 +79,15 @@ if (navigator.webkitGetUserMedia) {
   rtc.SERVER = function() {
     if (navigator.mozGetUserMedia) {
       return {
-        "iceServers": [{
+        "iceServers": ICE_SERVERS /*[{
           "url": "stun:23.21.150.121"
-        }]
+        }]*/
       };
     }
     return {
-      "iceServers": [{
+      "iceServers": ICE_SERVERS /*[{
         "url": "stun:stun.l.google.com:19302"
-      }]
+      }]*/
     };
   };
 
