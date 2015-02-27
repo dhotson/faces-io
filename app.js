@@ -22,7 +22,7 @@ var express = require('express')
 var app = express()
 app.get('/ice.js', function (req, res) {
     res.set('Content-Type', 'text/javascript');
-    res.send('var ICE_SERVERS='+JSON.stringify(ICE_SERVERS));
+    res.send('setice('+JSON.stringify(ICE_SERVERS)+')');
 });
 
 var port = parseInt(process.env.PORT, 10) || 8001;
