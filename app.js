@@ -21,7 +21,7 @@ setInterval(updateIceServers, 3600*1000*12); // Update every 12 hours
 var express = require('express')
 var app = express()
 app.get('/ice.js', function (req, res) {
-    res.set('Content-Type', 'text/javascript');
+    res.set('Content-Type', 'application/javascript');
     res.send('setice('+JSON.stringify(ICE_SERVERS)+')');
 });
 
