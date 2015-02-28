@@ -22,6 +22,8 @@ var express = require('express')
 var app = express()
 app.get('/ice.js', function (req, res) {
     res.set('Content-Type', 'application/javascript');
+    res.setHeader("Cache-Control", "public, max-age=3600"); // 1 hour
+    res.setHeader("Expires", new Date(Date.now() + 3600000).toUTCString());
     res.send('setice('+JSON.stringify(ICE_SERVERS)+')');
 });
 
